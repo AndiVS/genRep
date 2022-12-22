@@ -3,12 +3,14 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/sirupsen/logrus"
-	"gitlab.effective-soft.com/gogenerator/repositoriBuilder/internal/generators"
-	"gitlab.effective-soft.com/gogenerator/repositoriBuilder/internal/parser"
-	"gitlab.effective-soft.com/gogenerator/repositoriBuilder/internal/validator"
 	"log"
 	"os"
+
+	"github.com/sirupsen/logrus"
+
+	"github.com/AndiVS/genRep/internal/generators"
+	"github.com/AndiVS/genRep/internal/parser"
+	"github.com/AndiVS/genRep/internal/validator"
 )
 
 var (

@@ -3,7 +3,7 @@ package validator
 import (
 	"fmt"
 
-	"gitlab.effective-soft.com/gogenerator/repositoriBuilder/internal/model"
+	"github.com/AndiVS/genRep/internal/model"
 )
 
 // Validate method

@@ -6,9 +6,9 @@ import (
 	"os"
 	"strings"
 
-	"gitlab.effective-soft.com/gogenerator/repositoriBuilder/internal/model"
-	"gitlab.effective-soft.com/gogenerator/repositoriBuilder/internal/templates"
-	"gitlab.effective-soft.com/gogenerator/repositoriBuilder/internal/terminal/ubuntu"
+	"github.com/AndiVS/genRep/internal/model"
+	"github.com/AndiVS/genRep/internal/templates"
+	"github.com/AndiVS/genRep/internal/terminal/ubuntu"
 )
 
 func GeneratePagination(m *model.Model, outDir string) error {

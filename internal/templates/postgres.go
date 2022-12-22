@@ -4,7 +4,7 @@ import (
 	"strconv"
 	"text/template"
 
-	"gitlab.effective-soft.com/gogenerator/repositoriBuilder/internal/model"
+	"github.com/AndiVS/genRep/internal/model"
 )
 
 var PostgresRepositoryTemplate = template.Must(template.New("").Parse(

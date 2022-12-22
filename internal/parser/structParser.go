@@ -7,8 +7,8 @@ import (
 	"go/token"
 	"strings"
 
-	"gitlab.effective-soft.com/gogenerator/repositoriBuilder/internal/helper"
-	"gitlab.effective-soft.com/gogenerator/repositoriBuilder/internal/model"
+	"github.com/AndiVS/genRep/internal/helper"
+	"github.com/AndiVS/genRep/internal/model"
 )
 
 func ParseGoStructToModel(targetFile, targetStruct string) (*model.Model, error) {
