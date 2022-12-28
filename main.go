@@ -80,7 +80,11 @@ func main() {
 		args = []string{"."}
 	}
 
-	files := parser.ParsePackage(args)
+	files, modelImportPath := parser.ParsePackage(args)
+
+	for i := 0; i < len(models); i++ {
+		models[i].ModelPath = &modelImportPath
+	}
 
 	mod := parser.ParseGoStructToModel(files, models)
 	if mod[0].Fields == nil {

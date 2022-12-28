@@ -16,8 +16,10 @@ package repository
 import(
 	"context"{{ if .TimeFieldExists }}
 	"time"{{ end }}
-	"fmt"{{ if .GetWithSortAndPagination }}
-{{ end }}
+	"fmt"
+
+	"{{ .Model.ModelPath }}"
+
 	{{ if .UUIDFieldExists}}
 	"github.com/google/uuid" {{ end}}
 	"github.com/jackc/pgx/v4/pgxpool"

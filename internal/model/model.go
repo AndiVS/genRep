@@ -8,6 +8,7 @@ type Model struct {
 	Schema        *string
 	PrimaryFields []*Field
 	Fields        []*Field
+	ModelPath     *string
 }
 
 // Field struct which contains all necessary information about model field
