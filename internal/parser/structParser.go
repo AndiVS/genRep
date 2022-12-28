@@ -1,9 +1,7 @@
 package parser
 
 import (
-	"fmt"
 	"go/ast"
-	"go/parser"
 	"go/token"
 	"strings"
 
@@ -11,45 +9,42 @@ import (
 	"github.com/AndiVS/genRep/internal/model"
 )
 
-func ParseGoStructToModel(targetFile, targetStruct string) (*model.Model, error) {
-	fset := token.NewFileSet()
-	file, err := parser.ParseFile(fset, targetFile, nil, parser.AllErrors)
-	if err != nil {
-		return nil, fmt.Errorf("error while open parse file : %w", err)
-	}
+func ParseGoStructToModel(files []*ast.File, models []*model.Model) []*model.Model {
+	for _, file := range files {
+		for _, v := range file.Decls {
+			v, ok := v.(*ast.GenDecl)
+			if ok && v.Tok == token.TYPE {
+				k := v.Specs[0].(*ast.TypeSpec)
+				for _, mod := range models {
+					if k.Name.Name == *mod.Name {
 
-	mod := &model.Model{
-		Name: &targetStruct,
-	}
-	for _, v := range file.Decls {
-		if v.(*ast.GenDecl).Tok == token.TYPE {
-			k := v.(*ast.GenDecl).Specs[0].(*ast.TypeSpec)
-			if k.Name.Name == targetStruct {
-				for _, j := range k.Type.(*ast.StructType).Fields.List {
-					f := &model.Field{
-						Name: &j.Names[0].Name,
-						Type: GetType(j.Type),
-					}
+						for _, j := range k.Type.(*ast.StructType).Fields.List {
+							f := &model.Field{
+								Name: &j.Names[0].Name,
+								Type: GetType(j.Type),
+							}
 
-					tgMap := GetTags(j.Tag)
-					if sqlName, ok := tgMap["sqlName"]; ok {
-						f.SqlName = sqlName
-					} else {
-						buf := helper.ToSnakeCase(j.Names[0].Name)
-						f.SqlName = &buf
-					}
+							tgMap := GetTags(j.Tag)
+							if sqlName, ok := tgMap["sqlName"]; ok {
+								f.SqlName = sqlName
+							} else {
+								buf := helper.ToSnakeCase(j.Names[0].Name)
+								f.SqlName = &buf
+							}
 
-					if _, ok := tgMap["primary"]; ok {
-						mod.PrimaryFields = append(mod.PrimaryFields, f)
-					} else {
-						mod.Fields = append(mod.Fields, f)
+							if _, ok := tgMap["primary"]; ok {
+								mod.PrimaryFields = append(mod.PrimaryFields, f)
+							} else {
+								mod.Fields = append(mod.Fields, f)
+							}
+						}
 					}
 				}
 			}
 		}
 	}
 
-	return mod, err
+	return models
 }
 
 func GetType(exp ast.Expr) *string {

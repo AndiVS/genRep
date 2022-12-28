@@ -8,6 +8,14 @@ package pagination
 
 import "fmt"
 
+const(
+	WithoutSort SortType = iota
+	ASC
+	DESC
+)
+
+type SortType int
+
 // Filter interface represents data which can be converted to WHERE sql clause
 type Filter interface {
 	ToSQL() (string, []any)

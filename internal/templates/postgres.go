@@ -20,14 +20,7 @@ import(
 	"github.com/google/uuid" {{ end}}
 	"github.com/jackc/pgx/v4/pgxpool"
 )
-{{ if .GetWithSortAndPagination }}
-const(
-	WithoutSort SortType = iota
-	ASC
-	DESC
-)
 
-type SortType int{{ end }}
 {{ $tick := "` + "`" + `" }}
 // {{ .Model.Name }}RepositoryManager is interface with methods to interact with database
 type {{ .Model.Name }}RepositoryManager interface { {{ if .CreateMethod }}

@@ -3,6 +3,7 @@ package ubuntu
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 )
@@ -40,4 +41,13 @@ func CheckDirectory(path string) (bool, error) {
 		return true, nil
 	}
 	return false, fmt.Errorf("terminal/ubuntu: can't check directory - %s", err)
+}
+
+// IsDirectory reports whether the named file is a directory.
+func IsDirectory(name string) bool {
+	info, err := os.Stat(name)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return info.IsDir()
 }

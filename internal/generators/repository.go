@@ -38,19 +38,22 @@ type repositoryTemplateParams struct {
 	TimeFieldExists          bool
 }
 
-func Generate(m *model.Model, outDir string) error {
+func Generate(models []*model.Model, outDir string) error {
 	workingDir, err := ubuntu.CreateDirectory("repository", outDir)
 	if err != nil {
 		return err
 	}
-	rf, err := generateRepository(m)
-	if err != nil {
-		return err
-	}
-	fullPath := fmt.Sprintf("%s/%s_generated.go", workingDir, helper.ToSnakeCase(*m.Name))
-	err = os.WriteFile(fullPath, rf.Bytes(), 0644)
-	if err != nil {
-		return fmt.Errorf("repository generator: can't write template into the file - %s", err)
+
+	for _, m := range models {
+		rf, err := generateRepository(m)
+		if err != nil {
+			return err
+		}
+		fullPath := fmt.Sprintf("%s/%s_generated.go", workingDir, helper.ToSnakeCase(*m.Name))
+		err = os.WriteFile(fullPath, rf.Bytes(), 0644)
+		if err != nil {
+			return fmt.Errorf("repository generator: can't write template into the file - %s", err)
+		}
 	}
 	return nil
 }

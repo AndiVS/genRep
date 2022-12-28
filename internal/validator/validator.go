@@ -7,9 +7,11 @@ import (
 )
 
 // Validate method
-func Validate(m *model.Model) error {
-	if err := modelValidation(m); err != nil {
-		return fmt.Errorf("validator: %s", err)
+func Validate(m []*model.Model) error {
+	for _, v := range m {
+		if err := modelValidation(v); err != nil {
+			return fmt.Errorf("validator: %s", err)
+		}
 	}
 	return nil
 }
