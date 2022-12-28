@@ -3,17 +3,19 @@ package generators
 import (
 	"bytes"
 	"fmt"
+	"os"
+
 	"github.com/AndiVS/genRep/internal/templates"
 	"github.com/AndiVS/genRep/internal/terminal/ubuntu"
-	"os"
 )
 
+// GeneratePagination used to generate pagination package
 func GeneratePagination(outDir string) error {
 	workingDir, err := ubuntu.CreateDirectory("pagination", outDir)
 	if err != nil {
 		return err
 	}
-	sf, err := generatepag()
+	sf, err := generatePagination()
 	if err != nil {
 		return err
 	}
@@ -25,7 +27,7 @@ func GeneratePagination(outDir string) error {
 	return nil
 }
 
-func generatepag() (*bytes.Buffer, error) {
+func generatePagination() (*bytes.Buffer, error) {
 	var buf bytes.Buffer
 	err := templates.PaginationTemplate.Execute(&buf, nil)
 	if err != nil {

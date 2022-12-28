@@ -9,7 +9,7 @@ import (
 )
 
 // CreateDirectory creates a directory with given name and path
-func CreateDirectory(dirName string, path string) (string, error) {
+func CreateDirectory(dirName, path string) (string, error) {
 	absPath, err := filepath.Abs(path)
 	if err != nil {
 		return "", fmt.Errorf("terminal/ubuntu: can't find absolute path - %s", path)

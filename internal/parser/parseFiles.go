@@ -1,3 +1,4 @@
+// Package parser provides functions for parsing input files
 package parser
 
 import (
@@ -9,6 +10,7 @@ import (
 	"github.com/AndiVS/genRep/internal/model"
 )
 
+// ParseGoStructToModel function thant pars ast files to model for generating
 func ParseGoStructToModel(files []*ast.File, models []*model.Model) []*model.Model {
 	for _, file := range files {
 		for _, v := range file.Decls {
@@ -17,19 +19,18 @@ func ParseGoStructToModel(files []*ast.File, models []*model.Model) []*model.Mod
 				k := v.Specs[0].(*ast.TypeSpec)
 				for _, mod := range models {
 					if k.Name.Name == *mod.Name {
-
 						for _, j := range k.Type.(*ast.StructType).Fields.List {
 							f := &model.Field{
 								Name: &j.Names[0].Name,
-								Type: GetType(j.Type),
+								Type: getType(j.Type),
 							}
 
-							tgMap := GetTags(j.Tag)
+							tgMap := getTags(j.Tag)
 							if sqlName, ok := tgMap["sqlName"]; ok {
-								f.SqlName = sqlName
+								f.SQLName = sqlName
 							} else {
 								buf := helper.ToSnakeCase(j.Names[0].Name)
-								f.SqlName = &buf
+								f.SQLName = &buf
 							}
 
 							if _, ok := tgMap["primary"]; ok {
@@ -47,26 +48,26 @@ func ParseGoStructToModel(files []*ast.File, models []*model.Model) []*model.Mod
 	return models
 }
 
-func GetType(exp ast.Expr) *string {
+func getType(exp ast.Expr) *string {
 	var typeName *string
-	switch exp.(type) {
+	switch exp := exp.(type) {
 	case *ast.SelectorExpr:
-		tempStr := exp.(*ast.SelectorExpr).X.(*ast.Ident).Name + "." + exp.(*ast.SelectorExpr).Sel.Name
+		tempStr := exp.X.(*ast.Ident).Name + "." + exp.Sel.Name
 		typeName = &tempStr
 	case *ast.Ident:
-		typeName = &exp.(*ast.Ident).Name
+		typeName = &exp.Name
 	}
 
 	return typeName
 }
 
-func GetTags(tags *ast.BasicLit) map[string]*string {
+func getTags(tags *ast.BasicLit) map[string]*string {
 	tagMap := map[string]*string{}
 	if tags != nil {
 		str := tags.Value
-		str = strings.Replace(str, "\"", " ", -1)
-		str = strings.Replace(str, "`", "", -1)
-		str = strings.Replace(str, "  ", " ", -1)
+		str = strings.ReplaceAll(str, "\"", " ")
+		str = strings.ReplaceAll(str, "`", "")
+		str = strings.ReplaceAll(str, "  ", " ")
 		str = strings.TrimSpace(str)
 		arr := strings.Split(str, " ")
 
@@ -81,29 +82,3 @@ func GetTags(tags *ast.BasicLit) map[string]*string {
 	}
 	return tagMap
 }
-
-//func ToSQLType(str string) *string {
-//	rez := ""
-//	switch str {
-//	case "int":
-//	case "int32":
-//	case "int64":
-//		rez = "int"
-//		break
-//	case "float32":
-//	case "float64":
-//		rez = "float"
-//		break
-//	case "uuid":
-//		rez = "uuid"
-//		break
-//	case "string":
-//		rez = "varchar(60)"
-//		break
-//	case "bool":
-//		rez = "boolean"
-//		break
-//	}
-//
-//	return &rez
-//}

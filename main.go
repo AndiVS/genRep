@@ -1,27 +1,29 @@
+// Package main of repository generator
 package main
 
 import (
 	"flag"
 	"fmt"
+	"log"
+	"os"
+	"strings"
+
 	"github.com/AndiVS/genRep/internal/generators"
 	"github.com/AndiVS/genRep/internal/helper"
 	"github.com/AndiVS/genRep/internal/model"
 	"github.com/AndiVS/genRep/internal/parser"
-	validator "github.com/AndiVS/genRep/internal/validator"
+	"github.com/AndiVS/genRep/internal/validator"
 	"github.com/sirupsen/logrus"
-	"log"
-	"os"
-	"strings"
 )
 
 var (
-	typeNames  = flag.String("type", "", "comma-separated list of type names; must be set")
-	tableNames = flag.String("table", "type name in snake case", "comma-separated list of table names")
-	schemes    = flag.String("schema", "public", "comma-separated list of schema")
-	output     = flag.String("output", ".", "output path;")
+	typeNames  = flag.String("type", "", "comma-separated list of type names; must be set")             //nolint:gochecknoglobals // build flag
+	tableNames = flag.String("table", "type name in snake case", "comma-separated list of table names") //nolint:gochecknoglobals // build flag
+	schemes    = flag.String("schema", "public", "comma-separated list of schema")                      //nolint:gochecknoglobals // build flag
+	output     = flag.String("output", ".", "output path;")                                             //nolint:gochecknoglobals // build flag
 )
 
-// Usage is a replacement usage function for the flags package.
+// Usage is a replacement usage function for the flag package.
 func Usage() {
 	fmt.Fprintf(os.Stderr, "Usage of repBuilder:\n")
 	fmt.Fprintf(os.Stderr, "\trepBuilder -type=TypeName -table=TableName -schema=dbSchema -output=outputDir\n")
@@ -30,14 +32,16 @@ func Usage() {
 	flag.PrintDefaults()
 }
 
+const osExitCode = 2
+
 func main() {
 	log.SetFlags(0)
 	log.SetPrefix("repBuilder: ")
 	flag.Usage = Usage
 	flag.Parse()
-	if len(*typeNames) == 0 {
+	if *typeNames == "" {
 		flag.Usage()
-		os.Exit(2)
+		os.Exit(osExitCode)
 	}
 
 	types := strings.Split(*typeNames, ",")
@@ -46,11 +50,11 @@ func main() {
 
 	if tables[0] != "type name in snake case" && len(tables) != len(types) {
 		flag.Usage()
-		os.Exit(2)
+		os.Exit(osExitCode)
 	}
 	if schemes[0] != "public" && len(schemes) != len(types) {
 		flag.Usage()
-		os.Exit(2)
+		os.Exit(osExitCode)
 	}
 
 	models := make([]*model.Model, len(types))
@@ -88,7 +92,7 @@ func main() {
 		logrus.Fatal(err)
 	}
 
-	err = generators.Generate(mod, *output)
+	err = generators.GenerateRepository(mod, *output)
 	if err != nil {
 		logrus.Fatal(err)
 	}

@@ -1,3 +1,4 @@
+// Package validator is used to validate model for generation
 package validator
 
 import (
@@ -44,7 +45,7 @@ func fieldValidation(f *model.Field) error {
 	if f.Name == nil {
 		return fmt.Errorf("field name is missing")
 	}
-	if f.SqlName == nil {
+	if f.SQLName == nil {
 		return fmt.Errorf("field sql name is missing")
 	}
 	if f.Type == nil {

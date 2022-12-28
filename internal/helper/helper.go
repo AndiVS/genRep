@@ -1,3 +1,4 @@
+// Package helper contains helper functions that used in different packages
 package helper
 
 import (
@@ -5,6 +6,7 @@ import (
 	"strings"
 )
 
+// ToSnakeCase used to convert strings from camel to a snake case
 func ToSnakeCase(str string) string {
 	matchFirstCap := regexp.MustCompile("(.)([A-Z][a-z]+)")
 	matchAllCap := regexp.MustCompile("([a-z0-9])([A-Z])")

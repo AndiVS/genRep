@@ -1,3 +1,4 @@
+// Package templates presented templates for generation
 package templates
 
 import (
@@ -7,7 +8,8 @@ import (
 	"github.com/AndiVS/genRep/internal/model"
 )
 
-var PostgresRepositoryTemplate = template.Must(template.New("").Parse(
+// PostgresRepositoryTemplate used to generate postgres repositories
+var PostgresRepositoryTemplate = template.Must(template.New("").Parse( //nolint:gochecknoglobals // template
 	`// Package repository applies for interaction with database
 package repository
 
@@ -45,7 +47,7 @@ func New{{ .Model.Name}}RepositoryManager(pool *pgxpool.Pool) {{ .Model.Name}}Re
 {{ if .CreateMethod }}// Create method insert {{ .ModelNameLower}} record into database
 func (rps *{{ .ModelNameLower}}Repository) Create(ctx context.Context, obj *model.{{ .Model.Name }}) error {
 	_, err := rps.pool.Exec(ctx, 
-		{{ $tick }}{{ .SqlCreate }}{{ $tick }}, 
+		{{ $tick }}{{ .SQLCreate }}{{ $tick }}, 
 		{{ .CreateValues}})
 	if err != nil {
 		return fmt.Errorf("repository: can't create {{ .ModelNameLower}} record - %s", err)
@@ -57,7 +59,7 @@ func (rps *{{ .ModelNameLower}}Repository) Create(ctx context.Context, obj *mode
 func (rps *{{ .ModelNameLower}}Repository) GetByID(ctx context.Context, {{ .PrimaryKeys}}) (*model.{{ .Model.Name }}, error) {
 	var obj model.{{ .Model.Name }}
 	err := rps.pool.QueryRow(ctx,
-		{{ $tick }}{{ .SqlGetByID}}{{ $tick }}, {{ .PrimaryValues}}).Scan( {{range .Model.PrimaryFields}}
+		{{ $tick }}{{ .SQLGetByID}}{{ $tick }}, {{ .PrimaryValues}}).Scan( {{range .Model.PrimaryFields}}
 		&obj.{{ .Name}}, {{ end }} {{ range .Model.Fields}}
 		&obj.{{ .Name}}, {{ end }}
 	)
@@ -71,7 +73,7 @@ func (rps *{{ .ModelNameLower}}Repository) GetByID(ctx context.Context, {{ .Prim
 func (rps *{{ .ModelNameLower}}Repository) GetAll(ctx context.Context) ([]model.{{ .Model.Name }}, error) {
 	var objs []model.{{ .Model.Name }}
 	rows, err := rps.pool.Query(ctx,
-		{{ $tick }}{{ .SqlGetAll}}{{ $tick }})
+		{{ $tick }}{{ .SQLGetAll}}{{ $tick }})
 	if err != nil {
 		return nil, fmt.Errorf("repository: can't get all {{ .ModelNameLower }} records - %s", err)
 	}
@@ -94,7 +96,7 @@ func (rps *{{ .ModelNameLower}}Repository) GetAll(ctx context.Context) ([]model.
 {{ if .UpdateMethod}}// Update method updates {{ .ModelNameLower}} record
 func (rps *{{ .ModelNameLower}}Repository) Update(ctx context.Context, obj *model.{{ .Model.Name }}) error {
 	_, err := rps.pool.Exec(ctx,
-		{{ $tick }}{{ .SqlUpdate}}{{ $tick }},
+		{{ $tick }}{{ .SQLUpdate}}{{ $tick }},
 		{{ .UpdateValues}})
 	if err != nil {
 		return fmt.Errorf("repository: can't update {{ .ModelNameLower }} record - %s", err)
@@ -105,7 +107,7 @@ func (rps *{{ .ModelNameLower}}Repository) Update(ctx context.Context, obj *mode
 {{ if .DeleteMethod}}// Delete method removes {{ .ModelNameLower}} record
 func (rps *{{ .ModelNameLower}}Repository) Delete(ctx context.Context, {{ .PrimaryKeys}}) error {
 	_, err := rps.pool.Exec(ctx, 
-		{{ $tick }}{{ .SqlDelete }}{{ $tick }},
+		{{ $tick }}{{ .SQLDelete }}{{ $tick }},
 		{{ .PrimaryValues}})
 	if err != nil {
 		return fmt.Errorf("repository: can't delete {{ .ModelNameLower }} record - %s", err)
@@ -114,13 +116,14 @@ func (rps *{{ .ModelNameLower}}Repository) Delete(ctx context.Context, {{ .Prima
 }{{ end }}
 
 {{ if .GetWithSortAndPagination}}// GetWithSortAndPagination method return all {{ .ModelNameLower }} records from the database
-func (rps *{{ .ModelNameLower}}Repository) GetWithSortAndPagination(ctx context.Context, p *pagination.Pagination[*model.{{ .Model.Name }}]) ([]*model.{{ .Model.Name }}, int, error) {
+func (rps *{{ .ModelNameLower}}Repository) GetWithSortAndPagination(ctx context.Context, 
+	p *pagination.Pagination[*model.{{ .Model.Name }}]) ([]*model.{{ .Model.Name }}, int, error) {
 	var objs []*model.{{ .Model.Name }}
-	query := {{ $tick }}{{ .SqlGetAll}}{{ $tick }}
+	query := {{ $tick }}{{ .SQLGetAll}}{{ $tick }}
 
 	// batch count query
 	countClause, countArgs := p.Filter.ToSQL()
-	countQuery := {{ $tick }}{{ .SqlGetCount}}{{ $tick }} + countClause
+	countQuery := {{ $tick }}{{ .SQLGetCount}}{{ $tick }} + countClause
 	count := 0 
 	err := rps.pool.QueryRow(ctx, countQuery, countArgs...).Scan(&count)
 	if err != nil {
@@ -151,15 +154,16 @@ func (rps *{{ .ModelNameLower}}Repository) GetWithSortAndPagination(ctx context.
 }{{ end }}
 `))
 
-func SqlCreate(m *model.Model) string {
+// SQLCreate function used to create an insert query
+func SQLCreate(m *model.Model) string {
 	sqlRequest := "INSERT INTO \"" + *m.TableName + "\" \n\t\t("
 	for i := 0; i < len(m.PrimaryFields); i++ {
-		sqlRequest += "\"" + *m.PrimaryFields[i].SqlName + "\", \n\t\t"
+		sqlRequest += "\"" + *m.PrimaryFields[i].SQLName + "\", \n\t\t"
 	}
 	for i := 0; i < len(m.Fields)-1; i++ {
-		sqlRequest += "\"" + *m.Fields[i].SqlName + "\", \n\t\t"
+		sqlRequest += "\"" + *m.Fields[i].SQLName + "\", \n\t\t"
 	}
-	sqlRequest += "\"" + *m.Fields[len(m.Fields)-1].SqlName + "\") \n\t\t"
+	sqlRequest += "\"" + *m.Fields[len(m.Fields)-1].SQLName + "\") \n\t\t"
 	sqlRequest += "VALUES ("
 	for i := 1; i < len(m.Fields)+len(m.PrimaryFields); i++ {
 		sqlRequest += "$" + strconv.Itoa(i) + ","
@@ -168,6 +172,7 @@ func SqlCreate(m *model.Model) string {
 	return sqlRequest
 }
 
+// CreateValues function used to create an insert query
 func CreateValues(m *model.Model) string {
 	var values string
 	for i := 0; i < len(m.PrimaryFields); i++ {
@@ -180,55 +185,55 @@ func CreateValues(m *model.Model) string {
 	return values
 }
 
-// SqlGetByID returns script for get request
-func SqlGetByID(m *model.Model) string {
+// SQLGetByID returns script for get request
+func SQLGetByID(m *model.Model) string {
 	sqlRequest := "SELECT \n\t\t"
 	for i := 0; i < len(m.PrimaryFields); i++ {
-		sqlRequest += "\"" + *m.PrimaryFields[i].SqlName + "\", \n\t\t"
+		sqlRequest += "\"" + *m.PrimaryFields[i].SQLName + "\", \n\t\t"
 	}
 	for i := 0; i < len(m.Fields)-1; i++ {
-		sqlRequest += "\"" + *m.Fields[i].SqlName + "\", \n\t\t"
+		sqlRequest += "\"" + *m.Fields[i].SQLName + "\", \n\t\t"
 	}
-	sqlRequest += "\"" + *m.Fields[len(m.Fields)-1].SqlName + "\"\n\t\t"
+	sqlRequest += "\"" + *m.Fields[len(m.Fields)-1].SQLName + "\"\n\t\t"
 	sqlRequest += "FROM \"" + *m.TableName + "\" WHERE "
 	for i := 0; i < len(m.PrimaryFields)-1; i++ {
-		sqlRequest += "\"" + *m.PrimaryFields[i].SqlName + "\" = $" + strconv.Itoa(i+1) + ", "
+		sqlRequest += "\"" + *m.PrimaryFields[i].SQLName + "\" = $" + strconv.Itoa(i+1) + ", "
 	}
-	sqlRequest += "\"" + *m.PrimaryFields[len(m.PrimaryFields)-1].SqlName + "\" = $" + strconv.Itoa(len(m.PrimaryFields))
+	sqlRequest += "\"" + *m.PrimaryFields[len(m.PrimaryFields)-1].SQLName + "\" = $" + strconv.Itoa(len(m.PrimaryFields))
 	return sqlRequest
 }
 
-// SqlGetAll returns sql script for get all request
-func SqlGetAll(m *model.Model) string {
+// SQLGetAll returns sql script for get all request
+func SQLGetAll(m *model.Model) string {
 	sqlRequest := "SELECT \n\t\t"
 	for i := 0; i < len(m.PrimaryFields); i++ {
-		sqlRequest += "\"" + *m.PrimaryFields[i].SqlName + "\", \n\t\t"
+		sqlRequest += "\"" + *m.PrimaryFields[i].SQLName + "\", \n\t\t"
 	}
 	for i := 0; i < len(m.Fields)-1; i++ {
-		sqlRequest += "\"" + *m.Fields[i].SqlName + "\", \n\t\t"
+		sqlRequest += "\"" + *m.Fields[i].SQLName + "\", \n\t\t"
 	}
-	sqlRequest += "\"" + *m.Fields[len(m.Fields)-1].SqlName + "\" \n\t\tFROM \"" + *m.TableName + "\""
+	sqlRequest += "\"" + *m.Fields[len(m.Fields)-1].SQLName + "\" \n\t\tFROM \"" + *m.TableName + "\""
 	return sqlRequest
 }
 
-// SqlGetCount returns sql script for get count of element request
-func SqlGetCount(m *model.Model) string {
+// SQLGetCount returns sql script for get count of element request
+func SQLGetCount(m *model.Model) string {
 	sqlRequest := "SELECT COUNT(1) FROM \"" + *m.TableName + "\" "
 	return sqlRequest
 }
 
-// SqlUpdate returns sql script for update request
-func SqlUpdate(m *model.Model) string {
+// SQLUpdate returns sql script for update request
+func SQLUpdate(m *model.Model) string {
 	sqlRequest := "UPDATE \"" + *m.TableName + "\" SET \n\t\t"
 	for i := 0; i < len(m.Fields)-1; i++ {
-		sqlRequest += "\"" + *m.Fields[i].SqlName + "\" = $" + strconv.Itoa(i+1) + ", \n\t\t"
+		sqlRequest += "\"" + *m.Fields[i].SQLName + "\" = $" + strconv.Itoa(i+1) + ", \n\t\t"
 	}
-	sqlRequest += "\"" + *m.Fields[len(m.Fields)-1].SqlName + "\" = $" + strconv.Itoa(len(m.Fields)) + " \n\t\t"
+	sqlRequest += "\"" + *m.Fields[len(m.Fields)-1].SQLName + "\" = $" + strconv.Itoa(len(m.Fields)) + " \n\t\t"
 	sqlRequest += "WHERE "
 	for i := len(m.Fields); i < len(m.Fields)+len(m.PrimaryFields)-1; i++ {
-		sqlRequest += "\"" + *m.PrimaryFields[i].SqlName + "\" = $" + strconv.Itoa(i+1) + ", "
+		sqlRequest += "\"" + *m.PrimaryFields[i].SQLName + "\" = $" + strconv.Itoa(i+1) + ", "
 	}
-	sqlRequest += "\"" + *m.PrimaryFields[len(m.PrimaryFields)-1].SqlName + "\" = $" + strconv.Itoa(len(m.Fields)+len(m.PrimaryFields))
+	sqlRequest += "\"" + *m.PrimaryFields[len(m.PrimaryFields)-1].SQLName + "\" = $" + strconv.Itoa(len(m.Fields)+len(m.PrimaryFields))
 	return sqlRequest
 }
 
@@ -245,31 +250,33 @@ func UpdateValues(m *model.Model) string {
 	return values
 }
 
-// SqlDelete method returns sql script for delete request
-func SqlDelete(m *model.Model) string {
+// SQLDelete method returns sql script for delete request
+func SQLDelete(m *model.Model) string {
 	sqlRequest := "DELETE FROM \"" + *m.TableName + "\" WHERE \n\t\t"
 	for i := 0; i < len(m.PrimaryFields)-1; i++ {
-		sqlRequest += "\"" + *m.PrimaryFields[i].SqlName + "\" = $" + strconv.Itoa(i+1) + ", "
+		sqlRequest += "\"" + *m.PrimaryFields[i].SQLName + "\" = $" + strconv.Itoa(i+1) + ", "
 	}
-	sqlRequest += "\"" + *m.PrimaryFields[len(m.PrimaryFields)-1].SqlName + "\" = $" + strconv.Itoa(len(m.PrimaryFields))
+	sqlRequest += "\"" + *m.PrimaryFields[len(m.PrimaryFields)-1].SQLName + "\" = $" + strconv.Itoa(len(m.PrimaryFields))
 	return sqlRequest
 }
 
+// PrimaryKeysString function returns string of primary keys
 func PrimaryKeysString(m *model.Model) string {
 	var primaryKeys string
 	for i := 0; i < len(m.PrimaryFields)-1; i++ {
-		primaryKeys += *m.PrimaryFields[i].SqlName + " " + *m.PrimaryFields[i].Type + ", "
+		primaryKeys += *m.PrimaryFields[i].SQLName + " " + *m.PrimaryFields[i].Type + ", "
 	}
-	primaryKeys += *m.PrimaryFields[len(m.PrimaryFields)-1].SqlName + " " + *m.PrimaryFields[len(m.PrimaryFields)-1].Type
+	primaryKeys += *m.PrimaryFields[len(m.PrimaryFields)-1].SQLName + " " + *m.PrimaryFields[len(m.PrimaryFields)-1].Type
 
 	return primaryKeys
 }
 
+// PrimaryKeysValues function returns string of primary values
 func PrimaryKeysValues(m *model.Model) string {
 	var values string
 	for i := 0; i < len(m.PrimaryFields)-1; i++ {
-		values += *m.PrimaryFields[i].SqlName + ", "
+		values += *m.PrimaryFields[i].SQLName + ", "
 	}
-	values += *m.PrimaryFields[len(m.PrimaryFields)-1].SqlName
+	values += *m.PrimaryFields[len(m.PrimaryFields)-1].SQLName
 	return values
 }

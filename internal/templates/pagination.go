@@ -2,7 +2,8 @@ package templates
 
 import "text/template"
 
-var PaginationTemplate = template.Must(template.New("").Parse(
+// PaginationTemplate used to generate pagination
+var PaginationTemplate = template.Must(template.New("").Parse( //nolint:gochecknoglobals // template
 	`// Package pagination applies logic of pagination for database request
 package pagination
 

@@ -1,3 +1,4 @@
+// Package generators provide functions for generating using templates
 package generators
 
 import (
@@ -26,19 +27,20 @@ type repositoryTemplateParams struct {
 	GetWithSortAndPagination bool
 	PrimaryKeys              string
 	PrimaryValues            string
-	SqlCreate                string
+	SQLCreate                string
 	CreateValues             string
-	SqlGetByID               string
-	SqlGetAll                string
-	SqlGetCount              string
-	SqlUpdate                string
+	SQLGetByID               string
+	SQLGetAll                string
+	SQLGetCount              string
+	SQLUpdate                string
 	UpdateValues             string
-	SqlDelete                string
+	SQLDelete                string
 	UUIDFieldExists          bool
 	TimeFieldExists          bool
 }
 
-func Generate(models []*model.Model, outDir string) error {
+// GenerateRepository used to generate repository package
+func GenerateRepository(models []*model.Model, outDir string) error {
 	workingDir, err := ubuntu.CreateDirectory("repository", outDir)
 	if err != nil {
 		return err
@@ -60,18 +62,16 @@ func Generate(models []*model.Model, outDir string) error {
 
 func generateRepository(m *model.Model) (*bytes.Buffer, error) {
 	var buf bytes.Buffer
-	params, err := preparePostgresParams(m)
-	if err != nil {
-		return nil, err
-	}
-	err = templates.PostgresRepositoryTemplate.Execute(&buf, params)
+	params := preparePostgresParams(m)
+
+	err := templates.PostgresRepositoryTemplate.Execute(&buf, params)
 	if err != nil {
 		return nil, fmt.Errorf("repository generator: can't execute postgressql repository template - %s", err)
 	}
 	return &buf, nil
 }
 
-func preparePostgresParams(m *model.Model) (*repositoryTemplateParams, error) {
+func preparePostgresParams(m *model.Model) *repositoryTemplateParams {
 	params := &repositoryTemplateParams{
 		Model:           m,
 		PrimaryValues:   templates.PrimaryKeysValues(m),
@@ -82,25 +82,25 @@ func preparePostgresParams(m *model.Model) (*repositoryTemplateParams, error) {
 	}
 
 	params.CreateMethod = true
-	params.SqlCreate = templates.SqlCreate(m)
+	params.SQLCreate = templates.SQLCreate(m)
 	params.CreateValues = templates.CreateValues(m)
 
 	params.GetByIDMethod = true
-	params.SqlGetByID = templates.SqlGetByID(m)
+	params.SQLGetByID = templates.SQLGetByID(m)
 
 	params.GetAllMethod = true
-	params.SqlGetAll = templates.SqlGetAll(m)
+	params.SQLGetAll = templates.SQLGetAll(m)
 
 	params.UpdateMethod = true
-	params.SqlUpdate = templates.SqlUpdate(m)
+	params.SQLUpdate = templates.SQLUpdate(m)
 	params.UpdateValues = templates.UpdateValues(m)
 
 	params.DeleteMethod = true
-	params.SqlDelete = templates.SqlDelete(m)
+	params.SQLDelete = templates.SQLDelete(m)
 
 	params.DeleteMethodTransaction = true
 	params.GetWithSortAndPagination = true
-	params.SqlGetCount = templates.SqlGetCount(m)
+	params.SQLGetCount = templates.SQLGetCount(m)
 
-	return params, nil
+	return params
 }
