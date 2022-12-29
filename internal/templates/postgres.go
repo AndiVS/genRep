@@ -20,7 +20,7 @@ import(
 
 	"{{ .Model.ModelPath }}"
 
-	{{ if .UUIDFieldExists}}
+	"github.com/AndiVS/pagination"{{ if .UUIDFieldExists}}
 	"github.com/google/uuid" {{ end}}
 	"github.com/jackc/pgx/v4/pgxpool"
 )

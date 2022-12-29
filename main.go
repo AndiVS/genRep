@@ -101,8 +101,8 @@ func main() {
 		logrus.Fatal(err)
 	}
 
-	err = generators.GeneratePagination(*output)
-	if err != nil {
-		logrus.Fatal(err)
-	}
+	//err = generators.GeneratePagination(*output)
+	//if err != nil {
+	//	logrus.Fatal(err)
+	//}
 }
