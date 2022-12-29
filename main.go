@@ -29,6 +29,7 @@ func Usage() {
 	fmt.Fprintf(os.Stderr, "\trepBuilder -type=TypeName -table=TableName -schema=dbSchema -output=outputDir\n")
 	fmt.Fprintf(os.Stderr, "\tonli type mandatory\n")
 	fmt.Fprintf(os.Stderr, "\tif table is specified, the number of tables must be equal to the number of types\n")
+	fmt.Fprintf(os.Stderr, "\tif schema is specified, the number of schema must be equal to the number of types\n")
 	flag.PrintDefaults()
 }
 
