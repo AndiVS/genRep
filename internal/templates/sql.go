@@ -9,7 +9,7 @@ import (
 
 var PostgresCreateTableTemplate = template.Must(template.New("").Parse(
 	`CREATE TABLE IF NOT EXISTS {{ .Model.TableName}}( {{range .Model.PrimaryFields}} 
-		{{ .SQLName}} {{ .SQLType}} PRIMARY KEY, {{end}} {{range .Model.Fields}}
+		{{ .SQLName}} {{ .SQLType}}, {{end}} {{range .Model.Fields}}
 		{{ .SQLName}} {{ .SQLType}}, {{end}}
 	    PRIMARY KEY ({{ .MultiPrimaryKey}})
 	);
