@@ -25,6 +25,8 @@ func ParseGoStructToModel(files []*ast.File, models []*model.Model) []*model.Mod
 								Type: getType(j.Type),
 							}
 
+							f.SQLType = toSQLType(*f.Type)
+
 							tgMap := getTags(j.Tag)
 							if sqlName, ok := tgMap["sqlName"]; ok {
 								f.SQLName = sqlName
@@ -81,4 +83,30 @@ func getTags(tags *ast.BasicLit) map[string]*string {
 		}
 	}
 	return tagMap
+}
+
+func toSQLType(str string) *string {
+	rez := ""
+	switch str {
+	case "int":
+	case "int32":
+	case "int64":
+		rez = "int"
+		break
+	case "float32":
+	case "float64":
+		rez = "float"
+		break
+	case "uuid.UUID":
+		rez = "uuid"
+		break
+	case "string":
+		rez = "varchar(60)"
+		break
+	case "bool":
+		rez = "boolean"
+		break
+	}
+
+	return &rez
 }

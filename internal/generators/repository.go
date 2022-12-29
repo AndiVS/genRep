@@ -5,7 +5,6 @@ import (
 	"bytes"
 	"fmt"
 	"os"
-	"strings"
 
 	"github.com/AndiVS/genRep/internal/helper"
 	"github.com/AndiVS/genRep/internal/model"
@@ -78,8 +77,10 @@ func preparePostgresParams(m *model.Model) *repositoryTemplateParams {
 		PrimaryKeys:     templates.PrimaryKeysString(m),
 		TimeFieldExists: model.CheckTimeFields(m),
 		UUIDFieldExists: model.CheckUUIDField(m),
-		ModelNameLower:  strings.ToLower(*m.Name),
 	}
+
+	modelNameLower := helper.LcFirst(*m.Name)
+	params.ModelNameLower = modelNameLower
 
 	params.CreateMethod = true
 	params.SQLCreate = templates.SQLCreate(m)

@@ -16,6 +16,7 @@ type Field struct {
 	Name    *string
 	SQLName *string
 	Type    *string
+	SQLType *string
 }
 
 // CheckUUIDField function returns true if model contain field of type uuid
