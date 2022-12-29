@@ -92,20 +92,15 @@ func toSQLType(str string) *string {
 	case "int32":
 	case "int64":
 		rez = "int"
-		break
 	case "float32":
 	case "float64":
 		rez = "float"
-		break
 	case "uuid.UUID":
 		rez = "uuid"
-		break
 	case "string":
 		rez = "varchar(60)"
-		break
 	case "bool":
 		rez = "boolean"
-		break
 	}
 
 	return &rez
