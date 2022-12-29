@@ -18,7 +18,7 @@ type repositoryTemplateParams struct {
 	ModelNameLower           string
 	CreateMethod             bool
 	CreateMethodTransaction  bool
-	GetByIDMethod            bool
+	GetByPrimaryFieldMethod  bool
 	GetAllMethod             bool
 	UpdateMethod             bool
 	UpdateMethodTransaction  bool
@@ -85,7 +85,7 @@ func preparePostgresParams(m *model.Model) *repositoryTemplateParams {
 	params.SQLCreate = templates.SQLCreate(m)
 	params.CreateValues = templates.CreateValues(m)
 
-	params.GetByIDMethod = true
+	params.GetByPrimaryFieldMethod = true
 	params.SQLGetByID = templates.SQLGetByID(m)
 
 	params.GetAllMethod = true

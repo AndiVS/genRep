@@ -28,8 +28,8 @@ import(
 {{ $tick := "` + "`" + `" }}
 // {{ .Model.Name }}RepositoryManager is interface with methods to interact with database
 type {{ .Model.Name }}RepositoryManager interface { {{ if .CreateMethod }}
-	Create(ctx context.Context, obj *model.{{ .Model.Name }}) error {{ end }} {{ if .GetByIDMethod }}
-	GetByID(ctx context.Context, {{ .PrimaryKeys}}) (*model.{{ .Model.Name }}, error) {{ end }} {{ if .GetAllMethod }}
+	Create(ctx context.Context, obj *model.{{ .Model.Name }}) error {{ end }} {{ if .GetByPrimaryFieldMethod }}
+	GetByPrimaryField(ctx context.Context, {{ .PrimaryKeys}}) (*model.{{ .Model.Name }}, error) {{ end }} {{ if .GetAllMethod }}
 	GetAll(ctx context.Context) ([]model.{{ .Model.Name }}, error) {{ end }} {{ if .UpdateMethod}}
 	Update(ctx context.Context, obj *model.{{ .Model.Name }}) error {{ end }} {{ if .DeleteMethod }}
 	Delete(ctx context.Context, {{ .PrimaryKeys}}) error {{ end}} {{ if .GetWithSortAndPagination }}
@@ -57,8 +57,8 @@ func (rps *{{ .ModelNameLower}}Repository) Create(ctx context.Context, obj *mode
 	return nil
 }{{ end}}
 
-{{ if .GetByIDMethod}}// GetByID method returns {{ .ModelNameLower}} record with selection by id
-func (rps *{{ .ModelNameLower}}Repository) GetByID(ctx context.Context, {{ .PrimaryKeys}}) (*model.{{ .Model.Name }}, error) {
+{{ if .GetByPrimaryFieldMethod}}// GetByPrimaryField method returns {{ .ModelNameLower}} record with selection by id
+func (rps *{{ .ModelNameLower}}Repository) GetByPrimaryField(ctx context.Context, {{ .PrimaryKeys}}) (*model.{{ .Model.Name }}, error) {
 	var obj model.{{ .Model.Name }}
 	err := rps.pool.QueryRow(ctx,
 		{{ $tick }}{{ .SQLGetByID}}{{ $tick }}, {{ .PrimaryValues}}).Scan( {{range .Model.PrimaryFields}}

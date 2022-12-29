@@ -32,6 +32,10 @@ func modelValidation(m *model.Model) error {
 			return fmt.Errorf("%s model error - %s", *m.Name, err)
 		}
 	}
+	if len(m.PrimaryFields) == 0 {
+		return fmt.Errorf("%s model error - at least one field must be primary;"+
+			" set it by adding the `primary` tag to the structure field ", *m.Name)
+	}
 	for _, pf := range m.PrimaryFields {
 		if err := fieldValidation(pf); err != nil {
 			return fmt.Errorf("%s model error - %s", *m.Name, err)
