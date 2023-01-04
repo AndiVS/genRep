@@ -4,6 +4,7 @@ package parser
 import (
 	"go/ast"
 	"go/token"
+	"regexp"
 	"strings"
 
 	"github.com/AndiVS/genRep/internal/helper"
@@ -69,12 +70,15 @@ func getTags(tags *ast.BasicLit) map[string]*string {
 		str := tags.Value
 		str = strings.ReplaceAll(str, "\"", " ")
 		str = strings.ReplaceAll(str, "`", "")
-		str = strings.ReplaceAll(str, "  ", " ")
+		space := regexp.MustCompile(`\s+`)
+		str = space.ReplaceAllString(str, " ")
+		str = strings.ReplaceAll(str, ": ", ":")
 		str = strings.TrimSpace(str)
 		arr := strings.Split(str, " ")
 
 		for i := 0; i < len(arr); i++ {
 			buf := strings.Split(arr[i], ":")
+
 			if len(buf) > 1 {
 				tagMap[buf[0]] = &buf[1]
 			} else {
@@ -82,6 +86,7 @@ func getTags(tags *ast.BasicLit) map[string]*string {
 			}
 		}
 	}
+
 	return tagMap
 }
 

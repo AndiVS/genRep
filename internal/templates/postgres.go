@@ -199,7 +199,7 @@ func SQLGetByID(m *model.Model) string {
 	sqlRequest += "\"" + *m.Fields[len(m.Fields)-1].SQLName + "\"\n\t\t"
 	sqlRequest += "FROM \"" + *m.TableName + "\" WHERE "
 	for i := 0; i < len(m.PrimaryFields)-1; i++ {
-		sqlRequest += "\"" + *m.PrimaryFields[i].SQLName + "\" = $" + strconv.Itoa(i+1) + ", "
+		sqlRequest += "\"" + *m.PrimaryFields[i].SQLName + "\" = $" + strconv.Itoa(i+1) + " AND "
 	}
 	sqlRequest += "\"" + *m.PrimaryFields[len(m.PrimaryFields)-1].SQLName + "\" = $" + strconv.Itoa(len(m.PrimaryFields))
 	return sqlRequest
@@ -233,7 +233,7 @@ func SQLUpdate(m *model.Model) string {
 	sqlRequest += "\"" + *m.Fields[len(m.Fields)-1].SQLName + "\" = $" + strconv.Itoa(len(m.Fields)) + " \n\t\t"
 	sqlRequest += "WHERE "
 	for i := len(m.Fields); i < len(m.Fields)+len(m.PrimaryFields)-1; i++ {
-		sqlRequest += "\"" + *m.PrimaryFields[i].SQLName + "\" = $" + strconv.Itoa(i+1) + ", "
+		sqlRequest += "\"" + *m.PrimaryFields[i-len(m.Fields)].SQLName + "\" = $" + strconv.Itoa(i+1) + " AND "
 	}
 	sqlRequest += "\"" + *m.PrimaryFields[len(m.PrimaryFields)-1].SQLName + "\" = $" + strconv.Itoa(len(m.Fields)+len(m.PrimaryFields))
 	return sqlRequest
@@ -254,9 +254,9 @@ func UpdateValues(m *model.Model) string {
 
 // SQLDelete method returns sql script for delete request
 func SQLDelete(m *model.Model) string {
-	sqlRequest := "DELETE FROM \"" + *m.TableName + "\" WHERE \n\t\t"
+	sqlRequest := "DELETE FROM \"" + *m.TableName + "\"\n\t\t WHERE "
 	for i := 0; i < len(m.PrimaryFields)-1; i++ {
-		sqlRequest += "\"" + *m.PrimaryFields[i].SQLName + "\" = $" + strconv.Itoa(i+1) + ", "
+		sqlRequest += "\"" + *m.PrimaryFields[i].SQLName + "\" = $" + strconv.Itoa(i+1) + " AND "
 	}
 	sqlRequest += "\"" + *m.PrimaryFields[len(m.PrimaryFields)-1].SQLName + "\" = $" + strconv.Itoa(len(m.PrimaryFields))
 	return sqlRequest
