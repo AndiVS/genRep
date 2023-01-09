@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"regexp"
 	"strings"
 
 	"github.com/AndiVS/genRep/internal/generators"
@@ -17,10 +18,11 @@ import (
 )
 
 var (
-	typeNames  = flag.String("type", "", "comma-separated list of type names; must be set")             //nolint:gochecknoglobals // build flag
-	tableNames = flag.String("table", "type name in snake case", "comma-separated list of table names") //nolint:gochecknoglobals // build flag
-	schemes    = flag.String("schema", "public", "comma-separated list of schema")                      //nolint:gochecknoglobals // build flag
-	output     = flag.String("output", ".", "output path;")                                             //nolint:gochecknoglobals // build flag
+	typeNames  = flag.String("type", "", "comma-separated list of type names; must be set")                                        //nolint:gochecknoglobals // build flag
+	tableNames = flag.String("table", "type name in snake case", "comma-separated list of table names")                            //nolint:gochecknoglobals // build flag
+	schemes    = flag.String("schema", "public", "comma-separated list of schema")                                                 //nolint:gochecknoglobals // build flag
+	output     = flag.String("output", ".", "output path;")                                                                        //nolint:gochecknoglobals // build flag
+	method     = flag.String("method", "create, update, delete, getAll, getByPk, getPaginated", "comma-separated list of method;") //nolint:gochecknoglobals // build flag
 )
 
 // Usage is a replacement usage function for the flag package.
@@ -49,6 +51,10 @@ func main() {
 	tables := strings.Split(*tableNames, ",")
 	schemes := strings.Split(*schemes, ",")
 
+	space := regexp.MustCompile(`\s+`)
+	buf := space.ReplaceAllString(*method, " ")
+	methods := strings.Split(buf, ",")
+
 	if tables[0] != "type name in snake case" && len(tables) != len(types) {
 		flag.Usage()
 		os.Exit(osExitCode)
@@ -61,7 +67,8 @@ func main() {
 	models := make([]*model.Model, len(types))
 	for i := range types {
 		models[i] = &model.Model{
-			Name: &types[i],
+			Name:    &types[i],
+			Methods: methods,
 		}
 		if len(tables) == 1 {
 			buf := helper.ToSnakeCase(*models[i].Name)

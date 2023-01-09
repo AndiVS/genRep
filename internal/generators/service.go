@@ -27,10 +27,22 @@ type serviceTemplateParams struct {
 }
 
 func GenerateService(models []*model.Model, outDir string) error {
-	workingDir, err := ubuntu.CreateDirectory("service", outDir)
+	workingDir, err := ubuntu.GetFullPath("service", outDir)
 	if err != nil {
-		return err
+		return fmt.Errorf("service generator: - %w", err)
 	}
+
+	exists, err := ubuntu.CheckDirectory(workingDir)
+	if err != nil {
+		return fmt.Errorf("service generator: - %w", err)
+	}
+	if !exists {
+		err := ubuntu.CreateDirectory(workingDir)
+		if err != nil {
+			return fmt.Errorf("service generator: - %w", err)
+		}
+	}
+
 	for _, m := range models {
 		sf, err := generateService(m)
 		if err != nil {

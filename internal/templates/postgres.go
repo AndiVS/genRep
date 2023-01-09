@@ -19,8 +19,8 @@ import(
 	"fmt"
 
 	"{{ .Model.ModelPath }}"
-
-	"github.com/AndiVS/pagination"{{ if .UUIDFieldExists}}
+{{ if .GetWithSortAndPagination}}
+	"github.com/AndiVS/pagination"{{ end}}{{ if .UUIDFieldExists}}
 	"github.com/google/uuid" {{ end}}
 	"github.com/jackc/pgx/v4/pgxpool"
 )
@@ -52,7 +52,7 @@ func (rps *{{ .ModelNameLower}}Repository) Create(ctx context.Context, obj *mode
 		{{ $tick }}{{ .SQLCreate }}{{ $tick }}, 
 		{{ .CreateValues}})
 	if err != nil {
-		return fmt.Errorf("repository: can't create {{ .ModelNameLower}} record - %s", err)
+		return fmt.Errorf("exec %w", err)
 	}
 	return nil
 }{{ end}}
@@ -66,7 +66,7 @@ func (rps *{{ .ModelNameLower}}Repository) GetByPrimaryField(ctx context.Context
 		&obj.{{ .Name}}, {{ end }}
 	)
 	if err != nil {
-		return nil, fmt.Errorf("repository: can't get {{ .ModelNameLower }} record - %s", err)
+		return nil, fmt.Errorf("queryRow %w", err)
 	}
 	return &obj, nil
 }{{ end }}
@@ -77,7 +77,7 @@ func (rps *{{ .ModelNameLower}}Repository) GetAll(ctx context.Context) ([]model.
 	rows, err := rps.pool.Query(ctx,
 		{{ $tick }}{{ .SQLGetAll}}{{ $tick }})
 	if err != nil {
-		return nil, fmt.Errorf("repository: can't get all {{ .ModelNameLower }} records - %s", err)
+		return nil, fmt.Errorf("query %w", err)
 	}
 	defer rows.Close()
 
@@ -88,7 +88,7 @@ func (rps *{{ .ModelNameLower}}Repository) GetAll(ctx context.Context) ([]model.
 			&obj.{{ .Name}}, {{ end }}
 		)
 		if err != nil {
-			return nil, fmt.Errorf("repository: can't parse {{ .ModelNameLower }} record - %s", err)
+			return nil, fmt.Errorf("scan %w", err)
 		}
 		objs = append(objs, obj)
 	}
@@ -101,7 +101,7 @@ func (rps *{{ .ModelNameLower}}Repository) Update(ctx context.Context, obj *mode
 		{{ $tick }}{{ .SQLUpdate}}{{ $tick }},
 		{{ .UpdateValues}})
 	if err != nil {
-		return fmt.Errorf("repository: can't update {{ .ModelNameLower }} record - %s", err)
+		return fmt.Errorf("exec %w", err)
 	}
 	return nil
 }{{ end }}
@@ -112,7 +112,7 @@ func (rps *{{ .ModelNameLower}}Repository) Delete(ctx context.Context, {{ .Prima
 		{{ $tick }}{{ .SQLDelete }}{{ $tick }},
 		{{ .PrimaryValues}})
 	if err != nil {
-		return fmt.Errorf("repository: can't delete {{ .ModelNameLower }} record - %s", err)
+		return fmt.Errorf("exec %w", err)
 	}
 	return nil
 }{{ end }}
@@ -129,7 +129,7 @@ func (rps *{{ .ModelNameLower}}Repository) GetWithSortAndPagination(ctx context.
 	count := 0 
 	err := rps.pool.QueryRow(ctx, countQuery, countArgs...).Scan(&count)
 	if err != nil {
-		return nil, 0, fmt.Errorf("repository: can't get {{ .ModelNameLower }} record - %s", err)
+		return nil, 0, fmt.Errorf("queryRow %w", err)
 	}
 
 	// batch selection query
@@ -137,7 +137,7 @@ func (rps *{{ .ModelNameLower}}Repository) GetWithSortAndPagination(ctx context.
 	selectionQuery := fmt.Sprintf("%s %s", query, selectionClause)
 	rows, err := rps.pool.Query(ctx, selectionQuery, args...)
 	if err != nil {
-		return nil, 0, fmt.Errorf("repository: can't get all {{ .ModelNameLower }} records - %s", err)
+		return nil, 0, fmt.Errorf("query %w", err)
 	}
 	defer rows.Close()
 
@@ -148,7 +148,7 @@ func (rps *{{ .ModelNameLower}}Repository) GetWithSortAndPagination(ctx context.
 			&obj.{{ .Name}}, {{ end }}
 		)
 		if err != nil {
-			return nil, 0, fmt.Errorf("repository: can't parse {{ .ModelNameLower }} record - %s", err)
+			return nil, 0, fmt.Errorf("scan %w", err)
 		}
 		objs = append(objs, obj)
 	}

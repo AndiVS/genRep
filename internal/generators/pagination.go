@@ -11,10 +11,22 @@ import (
 
 // GeneratePagination used to generate pagination package
 func GeneratePagination(outDir string) error {
-	workingDir, err := ubuntu.CreateDirectory("pagination", outDir)
+	workingDir, err := ubuntu.GetFullPath("pagination", outDir)
 	if err != nil {
-		return err
+		return fmt.Errorf("pagination generator: - %w", err)
 	}
+
+	exists, err := ubuntu.CheckDirectory(workingDir)
+	if err != nil {
+		return fmt.Errorf("pagination generator: - %w", err)
+	}
+	if !exists {
+		err := ubuntu.CreateDirectory(workingDir)
+		if err != nil {
+			return fmt.Errorf("pagination generator: - %w", err)
+		}
+	}
+
 	sf, err := generatePagination()
 	if err != nil {
 		return err

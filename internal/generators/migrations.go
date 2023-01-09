@@ -17,17 +17,29 @@ type migrationsTemplateParams struct {
 
 // GenerateSQLMigration generates migrations for each entity from the description and writes it in file
 func GenerateSQLMigration(models []*model.Model, outDir string) error {
-	workingDir, err := ubuntu.CreateDirectory("migrations", outDir)
+	fullPath, err := ubuntu.GetFullPath("migrations", outDir)
 	if err != nil {
-		return err
+		return fmt.Errorf("migrations generator: - %w", err)
 	}
+
+	exists, err := ubuntu.CheckDirectory(fullPath)
+	if err != nil {
+		return fmt.Errorf("migrations generator: - %w", err)
+	}
+	if !exists {
+		err := ubuntu.CreateDirectory(fullPath)
+		if err != nil {
+			return fmt.Errorf("migrations generator: - %w", err)
+		}
+	}
+
 	for i, m := range models {
 		fileName := generateFileName(*m.Name, i+1)
 		migration, err := generateSQLMigration(m)
 		if err != nil {
 			return err
 		}
-		fullPath := fmt.Sprintf("%s/%s", workingDir, fileName)
+		fullPath := fmt.Sprintf("%s/%s", fullPath, fileName)
 		err = os.WriteFile(fullPath, migration.Bytes(), 0644)
 		if err != nil {
 			return fmt.Errorf("migrations generator: can't write template into the file - %s", err)

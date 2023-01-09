@@ -40,9 +40,20 @@ type repositoryTemplateParams struct {
 
 // GenerateRepository used to generate repository package
 func GenerateRepository(models []*model.Model, outDir string) error {
-	workingDir, err := ubuntu.CreateDirectory("repository", outDir)
+	workingDir, err := ubuntu.GetFullPath("repository", outDir)
 	if err != nil {
-		return err
+		return fmt.Errorf("repository generator: - %w", err)
+	}
+
+	exists, err := ubuntu.CheckDirectory(workingDir)
+	if err != nil {
+		return fmt.Errorf("repository generator: - %w", err)
+	}
+	if !exists {
+		err := ubuntu.CreateDirectory(workingDir)
+		if err != nil {
+			return fmt.Errorf("repository generator: - %w", err)
+		}
 	}
 
 	for _, m := range models {
@@ -82,26 +93,31 @@ func preparePostgresParams(m *model.Model) *repositoryTemplateParams {
 	modelNameLower := helper.LcFirst(*m.Name)
 	params.ModelNameLower = modelNameLower
 
-	params.CreateMethod = true
-	params.SQLCreate = templates.SQLCreate(m)
-	params.CreateValues = templates.CreateValues(m)
-
-	params.GetByPrimaryFieldMethod = true
-	params.SQLGetByID = templates.SQLGetByID(m)
-
-	params.GetAllMethod = true
-	params.SQLGetAll = templates.SQLGetAll(m)
-
-	params.UpdateMethod = true
-	params.SQLUpdate = templates.SQLUpdate(m)
-	params.UpdateValues = templates.UpdateValues(m)
-
-	params.DeleteMethod = true
-	params.SQLDelete = templates.SQLDelete(m)
-
-	params.DeleteMethodTransaction = true
-	params.GetWithSortAndPagination = true
-	params.SQLGetCount = templates.SQLGetCount(m)
+	for _, v := range m.Methods {
+		switch v {
+		case "create":
+			params.CreateMethod = true
+			params.SQLCreate = templates.SQLCreate(m)
+			params.CreateValues = templates.CreateValues(m)
+		case "getByPk":
+			params.GetByPrimaryFieldMethod = true
+			params.SQLGetByID = templates.SQLGetByID(m)
+		case "getAll":
+			params.GetAllMethod = true
+			params.SQLGetAll = templates.SQLGetAll(m)
+		case "update":
+			params.UpdateMethod = true
+			params.SQLUpdate = templates.SQLUpdate(m)
+			params.UpdateValues = templates.UpdateValues(m)
+		case "delete":
+			params.DeleteMethod = true
+			params.SQLDelete = templates.SQLDelete(m)
+			params.DeleteMethodTransaction = true
+		case "getPaginated":
+			params.GetWithSortAndPagination = true
+			params.SQLGetCount = templates.SQLGetCount(m)
+		}
+	}
 
 	return params
 }

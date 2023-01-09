@@ -9,6 +9,7 @@ type Model struct {
 	PrimaryFields []*Field
 	Fields        []*Field
 	ModelPath     *string
+	Methods       []string
 }
 
 // Field struct which contains all necessary information about model field
