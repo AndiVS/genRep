@@ -21,7 +21,7 @@ func GeneratePagination(outDir string) error {
 		return fmt.Errorf("pagination generator: - %w", err)
 	}
 	if !exists {
-		err := ubuntu.CreateDirectory(workingDir)
+		err = ubuntu.CreateDirectory(workingDir)
 		if err != nil {
 			return fmt.Errorf("pagination generator: - %w", err)
 		}

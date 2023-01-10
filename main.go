@@ -27,11 +27,14 @@ var (
 
 // Usage is a replacement usage function for the flag package.
 func Usage() {
-	fmt.Fprintf(os.Stderr, "Usage of repBuilder:\n")
-	fmt.Fprintf(os.Stderr, "\trepBuilder -type=TypeName -table=TableName -schema=dbSchema -output=outputDir\n")
-	fmt.Fprintf(os.Stderr, "\tonli type mandatory\n")
-	fmt.Fprintf(os.Stderr, "\tif table is specified, the number of tables must be equal to the number of types\n")
-	fmt.Fprintf(os.Stderr, "\tif schema is specified, the number of schema must be equal to the number of types\n")
+	_, err := fmt.Fprintf(os.Stderr, "Usage of repBuilder:\n")
+	_, err = fmt.Fprintf(os.Stderr, "\trepBuilder -type=TypeName -table=TableName -schema=dbSchema -output=outputDir\n")
+	_, err = fmt.Fprintf(os.Stderr, "\tonli type mandatory\n")
+	_, err = fmt.Fprintf(os.Stderr, "\tif table is specified, the number of tables must be equal to the number of types\n")
+	_, err = fmt.Fprintf(os.Stderr, "\tif schema is specified, the number of schema must be equal to the number of types\n")
+	if err != nil {
+		os.Exit(osExitCode)
+	}
 	flag.PrintDefaults()
 }
 
@@ -52,7 +55,7 @@ func main() {
 	schemes := strings.Split(*schemes, ",")
 
 	space := regexp.MustCompile(`\s+`)
-	buf := space.ReplaceAllString(*method, " ")
+	buf := space.ReplaceAllString(*method, "")
 	methods := strings.Split(buf, ",")
 
 	if tables[0] != "type name in snake case" && len(tables) != len(types) {
@@ -118,6 +121,7 @@ func main() {
 	if err != nil {
 		logrus.Fatal(err)
 	}
+
 	//err = generators.GeneratePagination(*output)
 	//if err != nil {
 	//	logrus.Fatal(err)

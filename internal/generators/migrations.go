@@ -39,7 +39,7 @@ func GenerateSQLMigration(models []*model.Model, outDir string) error {
 		if err != nil {
 			return err
 		}
-		fullPath := fmt.Sprintf("%s/%s", fullPath, fileName)
+		fullPath = fmt.Sprintf("%s/%s", fullPath, fileName)
 		err = os.WriteFile(fullPath, migration.Bytes(), 0644)
 		if err != nil {
 			return fmt.Errorf("migrations generator: can't write template into the file - %s", err)

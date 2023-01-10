@@ -29,7 +29,7 @@ func ParseGoStructToModel(files []*ast.File, models []*model.Model) []*model.Mod
 							f.SQLType = toSQLType(*f.Type)
 
 							tgMap := getTags(j.Tag)
-							if sqlName, ok := tgMap["sqlName"]; ok {
+							if sqlName, ok := tgMap["sql"]; ok {
 								f.SQLName = sqlName
 							} else {
 								buf := helper.ToSnakeCase(j.Names[0].Name)

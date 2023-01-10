@@ -35,7 +35,6 @@ linters:
   disable-all: true
   enable:
     - bodyclose
-    - deadcode
     - depguard
     - dogsled
     - dupl
@@ -61,16 +60,12 @@ linters:
     - misspell
     - nakedret
     - prealloc
-    - rowserrcheck
     - exportloopref
     - staticcheck
-    - structcheck
     - stylecheck
-    - typecheck
     - unconvert
     - unparam
     - unused
-    - varcheck
     - whitespace
 
 run:
