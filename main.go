@@ -14,6 +14,7 @@ import (
 	"github.com/AndiVS/genRep/internal/model"
 	"github.com/AndiVS/genRep/internal/parser"
 	"github.com/AndiVS/genRep/internal/validator"
+
 	"github.com/sirupsen/logrus"
 )
 

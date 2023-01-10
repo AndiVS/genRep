@@ -19,7 +19,7 @@ linters-settings:
   gocyclo:
     min-complexity: 15
   goimports:
-    local-prefixes: handlers.logine
+    local-prefixes: github.com/AndiVS/genRep
   revive:
     min-confidence: 0.8
   govet:
